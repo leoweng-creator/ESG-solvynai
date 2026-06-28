@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif; background: #111; }
+
+  .slide {
+    width: 1280px; height: 720px; position: relative; overflow: hidden;
+    display: none; page-break-after: always;
+  }
+  .slide.active { display: block; }
+
+  /* Colors */
+  :root {
+    --forest: #1A4731; --emerald: #065F46; --sage: #34D399;
+    --slate: #1E293B; --mist: #F0FDF4; --white: #fff;
+    --gray: #64748B; --lgray: #E2E8F0; --gold: #F59E0B;
+    --teal: #0D9488; --red: #DC2626; --blue: #3B82F6;
+    --purple: #7C3AED; --pink: #BE185D; --dkgreen: #0F3D26;
+  }
+
+  /* ── SHARED ── */
+  .hdr {
+    position: absolute; top: 0; left: 0; right: 0; height: 72px;
+    background: var(--forest); display: flex; align-items: center;
+    padding: 0 24px; gap: 14px;
+  }
+  .hdr h1 { color: #fff; font-size: 26px; font-weight: 700; }
+  .card {
+    background: #fff; border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.10);
+  }
+  .badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 6px; font-size: 11px; font-weight: 700; color: #fff;
+    padding: 2px 8px; white-space: nowrap;
+  }
+
+  /* ══ S1 COVER ══ */
+  #s1 { background: var(--emerald); }
+  #s1 .left { position: absolute; left:0; top:0; width:600px; height:720px; background:var(--forest); }
+  #s1 .deco1 { position:absolute; left:-60px; bottom:-60px; width:360px; height:360px;
+    border-radius:50%; background:rgba(52,211,153,.12); }
+  #s1 .deco2 { position:absolute; left:440px; top:-80px; width:220px; height:220px;
+    border-radius:50%; background:rgba(52,211,153,.14); }
+  #s1 .brand { position:absolute; left:40px; top:36px; color:var(--sage); font-size:11px; font-weight:700; letter-spacing:2px; }
+  #s1 h1 { position:absolute; left:40px; top:110px; color:#fff; font-size:54px; font-weight:900; line-height:1.1; }
+  #s1 .sub { position:absolute; left:40px; top:240px; color:var(--sage); font-size:22px; }
+  #s1 .desc { position:absolute; left:40px; top:290px; color:#A7F3D0; font-size:13px; }
+  #s1 .footer { position:absolute; left:40px; bottom:24px; color:#6EE7B7; font-size:11px; }
+  #s1 .stats { position:absolute; right:32px; top:80px; display:flex; flex-direction:column; gap:18px; width:390px; }
+  #s1 .stat { background:rgba(255,255,255,.12); border:1px solid rgba(52,211,153,.4); border-radius:14px;
+    padding:18px 20px; text-align:center; }
+  #s1 .stat-val { font-size:42px; font-weight:900; color:var(--sage); }
+  #s1 .stat-lbl { font-size:13px; color:#fff; margin-top:4px; }
+
+  /* ══ S2 LAW TIMELINE ══ */
+  #s2 { background: var(--mist); }
+  #s2 .grid { position:absolute; top:80px; left:24px; right:24px; bottom:36px;
+    display:grid; grid-template-columns:1fr 1fr; grid-template-rows:repeat(3,1fr);
+    gap:10px; }
+  #s2 .tcard { border-radius:10px; padding:14px 16px 10px;
+    box-shadow:0 2px 8px rgba(0,0,0,.08); overflow:hidden; }
+  #s2 .tcard.hi { background:#FFFBEB; }
+  #s2 .tcard:not(.hi) { background:#fff; }
+  #s2 .yr { display:inline-flex; align-items:center; justify-content:center;
+    width:64px; height:26px; border-radius:6px; font-size:11.5px; font-weight:800; color:#fff;
+    margin-bottom:6px; flex-shrink:0; }
+  #s2 .tline { font-size:11px; color:var(--slate); line-height:1.45; margin-top:3px; }
+  #s2 .tline.bold { font-weight:700; }
+  #s2 .fn { position:absolute; bottom:6px; left:24px; right:24px;
+    font-size:9px; color:var(--gray); }
+
+  /* ══ S3 CHALLENGES ══ */
+  #s3 { background: var(--mist); }
+  #s3 .sub { position:absolute; top:80px; left:28px; right:28px; font-size:13px; color:var(--slate); font-weight:700; }
+  #s3 .grid { position:absolute; top:104px; left:24px; right:24px; bottom:24px;
+    display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:1fr 1fr; gap:12px; }
+  #s3 .ccard { background:#fff; border-radius:12px; padding:18px 16px;
+    box-shadow:0 2px 8px rgba(0,0,0,.09); }
+  #s3 .ctitle { font-size:14px; font-weight:700; color:var(--slate); margin-bottom:10px; }
+  #s3 .cdesc { font-size:11px; color:var(--gray); line-height:1.65; }
+
+  /* ══ S4 AGENTS ══ */
+  #s4 { background: var(--forest); }
+  #s4 .sub { position:absolute; top:78px; left:0; right:0; text-align:center;
+    font-size:13px; color:var(--sage); }
+  #s4 .grid { position:absolute; top:104px; left:24px; right:24px; bottom:24px;
+    display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+  #s4 .acard { background:var(--dkgreen); border-radius:14px; padding:18px 18px 16px;
+    box-shadow:0 2px 10px rgba(0,0,0,.18); border:1px solid rgba(52,211,153,.18); }
+  #s4 .anum { width:44px; height:44px; border-radius:50%; display:inline-flex;
+    align-items:center; justify-content:center; font-size:15px; font-weight:800; }
+  #s4 .atitle { font-size:15px; font-weight:700; color:#fff; }
+  #s4 .asub { font-size:10px; margin-top:2px; }
+  #s4 .divider { height:1px; background:rgba(52,211,153,.2); margin:10px 0; }
+  #s4 .apt { font-size:11px; color:#D1FAE5; line-height:1.5; margin-bottom:7px;
+    padding-left:16px; position:relative; }
+  #s4 .apt::before { content:"✓"; position:absolute; left:0; color:var(--sage); font-size:10px; }
+
+  /* ══ S5 ROI ══ */
+  #s5 { background: var(--mist); }
+  #s5 .left { position:absolute; top:80px; left:24px; width:610px; bottom:24px; }
+  #s5 .kpis { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+  #s5 .kcard { background:#fff; border-radius:10px; padding:14px 16px;
+    box-shadow:0 2px 6px rgba(0,0,0,.08); text-align:center; }
+  #s5 .kval { font-size:32px; font-weight:900; }
+  #s5 .klbl { font-size:11px; color:var(--slate); margin-top:4px; }
+  #s5 .chart-wrap { background:#fff; border-radius:10px; padding:14px 16px;
+    box-shadow:0 2px 6px rgba(0,0,0,.08); }
+  #s5 .chart-title { font-size:11px; color:var(--slate); font-weight:600; margin-bottom:10px; text-align:center; }
+  #s5 .bars { display:flex; gap:6px; align-items:flex-end; height:120px; }
+  #s5 .bar-group { flex:1; display:flex; gap:3px; align-items:flex-end; flex-direction:column-reverse; }
+  #s5 .bar-pair { width:100%; display:flex; gap:3px; align-items:flex-end; height:120px; justify-content:center; }
+  #s5 .bar { border-radius:3px 3px 0 0; width:22px; }
+  #s5 .bar-lbl { font-size:9px; color:var(--gray); text-align:center; margin-top:4px; }
+  #s5 .legend { display:flex; gap:14px; justify-content:center; margin-top:8px; }
+  #s5 .leg { font-size:9.5px; color:var(--gray); display:flex; align-items:center; gap:4px; }
+  #s5 .leg-dot { width:10px; height:10px; border-radius:2px; }
+  #s5 .right { position:absolute; top:80px; left:650px; right:24px; bottom:24px; }
+  #s5 .right h3 { font-size:13px; font-weight:700; color:var(--slate); margin-bottom:10px; }
+  #s5 .ccase { background:#fff; border-radius:10px; padding:12px 14px;
+    box-shadow:0 2px 6px rgba(0,0,0,.08); margin-bottom:10px; }
+  #s5 .ctop { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+  #s5 .ctitle2 { font-size:12px; font-weight:700; color:var(--slate); }
+  #s5 .cdesc2 { font-size:10.5px; color:var(--gray); line-height:1.5; }
+
+  /* ══ S6 BD ══ */
+  #s6 { background: var(--mist); }
+  #s6 .left { position:absolute; top:80px; left:24px; width:570px; bottom:24px; }
+  #s6 .right { position:absolute; top:80px; left:608px; right:24px; bottom:24px; }
+  #s6 h3 { font-size:13px; font-weight:700; color:var(--slate); margin-bottom:10px; }
+  #s6 .seg { background:#fff; border-radius:10px; padding:10px 14px;
+    box-shadow:0 2px 6px rgba(0,0,0,.08); margin-bottom:8px;
+    display:flex; align-items:center; gap:12px; }
+  #s6 .tier { width:32px; height:32px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:14px; font-weight:800; color:#fff; flex-shrink:0; }
+  #s6 .seg-info { flex:1; }
+  #s6 .seg-title { font-size:12px; font-weight:700; color:var(--slate); }
+  #s6 .seg-pain { font-size:10.5px; color:var(--gray); margin-top:2px; }
+  #s6 .fw { border-radius:10px; padding:12px 16px; margin-bottom:9px;
+    box-shadow:0 2px 6px rgba(0,0,0,.08); background:#fff; border-left:3px solid; }
+  #s6 .fw-step { font-size:12px; font-weight:700; margin-bottom:4px; }
+  #s6 .fw-q { font-size:11px; color:var(--slate); font-style:italic; margin-bottom:3px; }
+  #s6 .fw-tip { font-size:10px; color:var(--gray); }
+
+  /* ══ S7 ROADMAP ══ */
+  #s7 { background: var(--forest); }
+  #s7 .phases { position:absolute; top:84px; left:24px; right:24px; height:574px;
+    display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+  #s7 .ph { background:var(--dkgreen); border-radius:14px; padding:0;
+    box-shadow:0 2px 10px rgba(0,0,0,.18); border:1px solid rgba(52,211,153,.2);
+    display:flex; flex-direction:column; }
+  #s7 .ph-badge { border-radius:10px 10px 0 0; padding:10px; text-align:center;
+    font-size:13px; font-weight:800; color:var(--forest); }
+  #s7 .ph-wk { text-align:center; font-size:10px; padding:6px 0 0; }
+  #s7 .ph-title { text-align:center; font-size:18px; font-weight:800; color:#fff; padding:8px 0 6px; }
+  #s7 .ph-div { height:1px; background:rgba(52,211,153,.2); margin:0 16px; }
+  #s7 .ph-pts { padding:12px 14px; flex:1; }
+  #s7 .ph-pt { font-size:11px; color:#A7F3D0; line-height:1.5; margin-bottom:10px;
+    padding-left:14px; position:relative; }
+  #s7 .ph-pt::before { content:"·"; position:absolute; left:3px; font-size:14px; }
+  #s7 .pricing { position:absolute; bottom:50px; left:24px; right:24px; height:46px;
+    display:flex; align-items:center; gap:0; }
+  #s7 .pr-label { color:var(--sage); font-size:13px; font-weight:700; width:90px; flex-shrink:0; }
+  #s7 .pr-tags { display:flex; gap:10px; flex:1; }
+  #s7 .pr-tag { flex:1; border-radius:8px; height:36px; display:flex; align-items:center;
+    justify-content:center; font-size:10.5px; color:#fff; font-weight:600; }
+
+  /* ══ S8 CTA ══ */
+  #s8 { background: var(--emerald); }
+  #s8 .deco1 { position:absolute; right:-80px; top:-120px; width:480px; height:480px;
+    border-radius:50%; background:rgba(52,211,153,.1); }
+  #s8 .deco2 { position:absolute; left:-100px; bottom:-80px; width:400px; height:400px;
+    border-radius:50%; background:rgba(52,211,153,.1); }
+  #s8 h1 { position:absolute; top:80px; left:0; right:0; text-align:center;
+    font-size:36px; font-weight:900; color:#fff; }
+  #s8 .sub { position:absolute; top:140px; left:0; right:0; text-align:center;
+    font-size:15px; color:#A7F3D0; }
+  #s8 .cards { position:absolute; top:200px; left:48px; right:48px; bottom:70px;
+    display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+  #s8 .scard { background:var(--dkgreen); border-radius:16px; padding:28px 24px;
+    box-shadow:0 4px 16px rgba(0,0,0,.2); border:1px solid rgba(52,211,153,.2);
+    display:flex; flex-direction:column; align-items:center; gap:14px; }
+  #s8 .sicon { font-size:40px; }
+  #s8 .stitle { font-size:16px; font-weight:700; color:#fff; text-align:center; }
+  #s8 .sdesc { font-size:12px; color:#D1FAE5; line-height:1.7; text-align:center; }
+  #s8 .footer { position:absolute; bottom:20px; left:0; right:0;
+    text-align:center; font-size:12px; color:#6EE7B7; }
+
+  /* print / export */
+  @media print {
+    .slide { display:block !important; page-break-after:always; }
+    .nav { display:none; }
+  }
+  .nav { position:fixed; bottom:8px; left:50%; transform:translateX(-50%);
+    display:flex; gap:10px; z-index:100; }
+  .nav button { background:rgba(255,255,255,.3); border:none; color:#fff;
+    padding:8px 18px; border-radius:20px; cursor:pointer; font-size:14px; }
+  .nav button:hover { background:rgba(255,255,255,.5); }
+  .slide-num { position:fixed; bottom:24px; right:24px; color:rgba(255,255,255,.5); font-size:12px; }
+</style>
+</head>
+<body>
+
+<!-- S1: COVER -->
+<div class="slide active" id="s1">
+  <div class="left">
+    <div class="deco1"></div>
+    <div class="deco2"></div>
+  </div>
+  <div class="brand">🌿 SOLVYN AI × ESG SOLUTION</div>
+  <h1 style="font-size:64px; top:90px;">ESG AI 導入方案</h1>
+  <div class="sub">讓合規變成競爭力</div>
+  <div class="desc">台灣 ESG 法規全面強制 · AI 效率突破 · 策略機會</div>
+  <div class="footer">索紋科技 Solvyn AI · AI Agent Workflow Specialist</div>
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-val">1,800+</div>
+      <div class="stat-lbl">家上市櫃公司 強制 ESG 揭露</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val">2025</div>
+      <div class="stat-lbl">全面上路年份 · 8月底前須申報</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val">80%</div>
+      <div class="stat-lbl">企業面臨 ESG 數位落差</div>
+    </div>
+  </div>
+</div>
+
+<!-- S2: LAW TIMELINE -->
+<div class="slide" id="s2">
+  <div class="hdr"><span style="font-size:24px">⚖️</span><h1>台灣 ESG 法規現況與時間軸</h1></div>
+  <div class="grid">
+
+    <div class="tcard">
+      <div class="yr" style="background:#0D9488">2023</div>
+      <div class="tline">資本額 100億↑、鋼鐵、水泥業：溫室氣體盤查開始</div>
+      <div class="tline">永續報告書依 GRI 2021 編製（強制適用）</div>
+      <div class="tline">同步參考 TCFD、SASB 準則揭露氣候資訊</div>
+    </div>
+
+    <div class="tcard">
+      <div class="yr" style="background:#DC2626">2026</div>
+      <div class="tline">資本額 100億↑：IFRS S1/S2 永續揭露準則分階段適用</div>
+      <div class="tline">歐盟 CBAM 碳邊境調整機制正式課徵（影響出口商）</div>
+      <div class="tline">需於年報同步揭露永續資訊，接軌財務報告</div>
+    </div>
+
+    <div class="tcard">
+      <div class="yr" style="background:#0284C7">2024</div>
+      <div class="tline">資本額 100億↑：溫室氣體查證（第三方）完成</div>
+      <div class="tline">永續報告書須依 TCFD 揭露氣候相關財務資訊</div>
+      <div class="tline">證交所開始抽查報告書品質與數據一致性</div>
+    </div>
+
+    <div class="tcard">
+      <div class="yr" style="background:#7C3AED">2027</div>
+      <div class="tline">全體上市櫃完成溫室氣體盤查（Scope 1 &amp; 2）</div>
+      <div class="tline">50億↓公司：開始溫室氣體盤查</div>
+      <div class="tline">IFRS S1/S2 中型企業分階段適用開始</div>
+    </div>
+
+    <div class="tcard hi">
+      <div class="yr" style="background:#F59E0B">2025</div>
+      <div class="tline bold">★ 全體上市櫃（含20億↓）強制編製永續報告書</div>
+      <div class="tline bold">★ 每年 8月31日前申報上一年度永續報告書</div>
+      <div class="tline">50~100億公司：母公司溫室氣體盤查開始</div>
+      <div class="tline">永續資訊管理納入內控制度，列為稽核重點</div>
+    </div>
+
+    <div class="tcard">
+      <div class="yr" style="background:#BE185D">2029</div>
+      <div class="tline">全體完成溫室氣體盤查「確信」（第三方查證）</div>
+      <div class="tline">在歐有重大業務的台灣企業須遵循 CSRD</div>
+      <div class="tline">全面接軌 ISSB 國際永續揭露準則</div>
+    </div>
+
+  </div>
+  <div class="fn">主管機關：金融監督管理委員會（金管會）· 環境部 ｜ 準則：GRI 2021 · TCFD · SASB · ISSB (IFRS S1/S2) · ESRS · CSRD</div>
+</div>
+
+<!-- S3: CHALLENGES -->
+<div class="slide" id="s3">
+  <div class="hdr"><span style="font-size:22px">⚡</span><h1>企業面臨的核心挑戰 — 為什麼 AI 介入是必要的？</h1></div>
+  <div class="grid" style="top:80px; left:24px; right:24px; bottom:24px; position:absolute; display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:1fr 1fr; gap:12px;">
+    <div class="ccard">
+      <div class="ctitle">📊 數據收集耗時</div>
+      <div class="cdesc">ESG 數據散落於 ERP、HR、IoT、設備系統，跨部門整合每年耗費 3–5 人月，人工填報錯誤率高且難以追溯核查，每次申報都得從頭重做。</div>
+    </div>
+    <div class="ccard">
+      <div class="ctitle">⚖️ 準則複雜多元</div>
+      <div class="cdesc">GRI 2021、TCFD、SASB、ISSB（IFRS S1/S2）、ESRS 同時適用，準則持續更新，專業人才極度短缺，中小型上市企業難以負擔高額顧問費用。</div>
+    </div>
+    <div class="ccard">
+      <div class="ctitle">🔥 碳排計算困難</div>
+      <div class="cdesc">Scope 1/2/3 盤查涉及複雜排放係數資料庫（LCA），供應鏈上下游數據蒐集耗時，手動計算易出錯，無法即時監控排放熱點，也難以做趨勢分析。</div>
+    </div>
+    <div class="ccard">
+      <div class="ctitle">🛡️ 查核風險升高</div>
+      <div class="cdesc">2024 年起主管機關抽查報告書，數據不一致將被退件要求更正。環保署申報數字與報告書若不符，面臨裁罰及信評衝擊，退件後還需重新排查核程序。</div>
+    </div>
+    <div class="ccard">
+      <div class="ctitle">🌐 供應鏈壓力</div>
+      <div class="cdesc">Apple（320+ 供應商要求 100% 再生能源）、NVIDIA（2026 Scope 3 合作要求）、Amazon 均要求供應商定期提交碳排數據，不符合者面臨訂單流失風險。</div>
+    </div>
+    <div class="ccard">
+      <div class="ctitle">📈 投資人評分壓力</div>
+      <div class="cdesc">ESG 評分直接影響外資持股比例、融資利率與信用評等。永續報告書品質低落、數據不完整，導致 MSCI、富時等機構投資人評估時扣分，衝擊股價與市值。</div>
+    </div>
+  </div>
+</div>
+
+<!-- S4: AGENTS -->
+<div class="slide" id="s4">
+  <div class="hdr"><span style="font-size:22px">🤖</span><h1>Solvyn ESG AI Agent 解決方案</h1></div>
+  <div class="sub">三大 AI Agent 核心模組 — 可獨立部署，亦可整合運作</div>
+  <div class="grid">
+
+    <div class="acard">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
+        <div class="anum" style="background:rgba(52,211,153,.2); color:#34D399;">01</div>
+        <div>
+          <div class="atitle">數據整合 Agent</div>
+          <div class="asub" style="color:#34D399;">Data Intelligence</div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="apt">自動串接 ERP / HR / IoT / 工廠設備數據</div>
+      <div class="apt">AI 自動計算 Scope 1、2、3 碳排放量</div>
+      <div class="apt">即時 ESG 儀表板，各指標一目瞭然</div>
+      <div class="apt">自動催繳跨部門數據並附截止提醒</div>
+      <div class="apt">數據異常偵測，降低人工填報錯誤率</div>
+    </div>
+
+    <div class="acard">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
+        <div class="anum" style="background:rgba(245,158,11,.2); color:#F59E0B;">02</div>
+        <div>
+          <div class="atitle">合規映射 Agent</div>
+          <div class="asub" style="color:#F59E0B;">Compliance Intelligence</div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="apt">GRI 2021 / TCFD / SASB / ISSB 多準則對應</div>
+      <div class="apt">法規條文自動更新，版本即時同步</div>
+      <div class="apt">重大性議題 AI 評估（雙重重大性原則）</div>
+      <div class="apt">合規差異分析，標出缺漏欄位與改善建議</div>
+      <div class="apt">第三方查核預備清單自動生成</div>
+    </div>
+
+    <div class="acard">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
+        <div class="anum" style="background:rgba(96,165,250,.2); color:#60A5FA;">03</div>
+        <div>
+          <div class="atitle">報告生成 Agent</div>
+          <div class="asub" style="color:#60A5FA;">Report Intelligence</div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="apt">依 GRI 框架自動生成繁中 / 英雙語草稿</div>
+      <div class="apt">依利害關係人（投資人 / 員工 / 客戶）客製化</div>
+      <div class="apt">數據一致性校驗：與財報、環保署申報比對</div>
+      <div class="apt">符合金管會 ESG 數位平台申報格式</div>
+      <div class="apt">圖表自動生成（折線圖、柱狀圖、熱點圖）</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- S5: ROI -->
+<div class="slide" id="s5">
+  <div class="hdr"><span style="font-size:22px">📊</span><h1>導入效益 · ROI 指標 · 實際案例</h1></div>
+  <div class="left">
+    <div class="kpis">
+      <div class="kcard"><div class="kval" style="color:#34D399;">70%↓</div><div class="klbl">報告書製作工時節省</div></div>
+      <div class="kcard"><div class="kval" style="color:#0D9488;">60%+</div><div class="klbl">人工填報成本節省</div></div>
+      <div class="kcard"><div class="kval" style="color:#3B82F6;">17-30%</div><div class="klbl">製造業 AI 節能實績</div></div>
+      <div class="kcard"><div class="kval" style="color:#F59E0B;">8 週</div><div class="klbl">基礎模組導入時程</div></div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-title">各環節人月比較（導入前後）</div>
+      <div style="display:flex; gap:8px; align-items:flex-end; height:130px; padding:0 10px;">
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:0;">
+          <div style="display:flex; gap:4px; align-items:flex-end; height:120px;">
+            <div style="width:22px; height:96px; background:#BFDBFE; border-radius:3px 3px 0 0;"></div>
+            <div style="width:22px; height:19px; background:#34D399; border-radius:3px 3px 0 0;"></div>
+          </div>
+          <div style="font-size:9px; color:#64748B; margin-top:4px; text-align:center;">數據收集</div>
+        </div>
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center;">
+          <div style="display:flex; gap:4px; align-items:flex-end; height:120px;">
+            <div style="width:22px; height:84px; background:#BFDBFE; border-radius:3px 3px 0 0;"></div>
+            <div style="width:22px; height:12px; background:#34D399; border-radius:3px 3px 0 0;"></div>
+          </div>
+          <div style="font-size:9px; color:#64748B; margin-top:4px; text-align:center;">碳排計算</div>
+        </div>
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center;">
+          <div style="display:flex; gap:4px; align-items:flex-end; height:120px;">
+            <div style="width:22px; height:120px; background:#BFDBFE; border-radius:3px 3px 0 0;"></div>
+            <div style="width:22px; height:29px; background:#34D399; border-radius:3px 3px 0 0;"></div>
+          </div>
+          <div style="font-size:9px; color:#64748B; margin-top:4px; text-align:center;">報告撰寫</div>
+        </div>
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center;">
+          <div style="display:flex; gap:4px; align-items:flex-end; height:120px;">
+            <div style="width:22px; height:60px; background:#BFDBFE; border-radius:3px 3px 0 0;"></div>
+            <div style="width:22px; height:10px; background:#34D399; border-radius:3px 3px 0 0;"></div>
+          </div>
+          <div style="font-size:9px; color:#64748B; margin-top:4px; text-align:center;">法規對照</div>
+        </div>
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center;">
+          <div style="display:flex; gap:4px; align-items:flex-end; height:120px;">
+            <div style="width:22px; height:48px; background:#BFDBFE; border-radius:3px 3px 0 0;"></div>
+            <div style="width:22px; height:14px; background:#34D399; border-radius:3px 3px 0 0;"></div>
+          </div>
+          <div style="font-size:9px; color:#64748B; margin-top:4px; text-align:center;">查核確認</div>
+        </div>
+      </div>
+      <div class="legend">
+        <div class="leg"><div class="leg-dot" style="background:#BFDBFE;"></div>導入前（人月）</div>
+        <div class="leg"><div class="leg-dot" style="background:#34D399;"></div>AI 導入後（人月）</div>
+      </div>
+    </div>
+  </div>
+  <div class="right">
+    <h3>實際導入案例</h3>
+    <div class="ccase">
+      <div class="ctop"><span class="badge" style="background:#0D9488;">製造</span><span class="ctitle2">友達光電</span></div>
+      <div class="cdesc2">AI 智慧電網年節電 8%，台中廠 2018-2020 減水 23%、減碳 20%，節能成果列入永續報告書</div>
+    </div>
+    <div class="ccase">
+      <div class="ctop"><span class="badge" style="background:#0D9488;">製造</span><span class="ctitle2">中鋼中碳</span></div>
+      <div class="cdesc2">鍋爐 AI 控制節能 17-30%，年省等效 2,000 座大安森林公園碳吸收量，顯著降低 Scope 1 排放</div>
+    </div>
+    <div class="ccase">
+      <div class="ctop"><span class="badge" style="background:#7C3AED;">服務</span><span class="ctitle2">SAP 生成式 AI</span></div>
+      <div class="cdesc2">自動串接 ERP 數據生成永續報告，製作效率提升 60% 以上，大幅縮短審查與修訂時間</div>
+    </div>
+    <div class="ccase">
+      <div class="ctop"><span class="badge" style="background:#F59E0B;">中小企</span><span class="ctitle2">首次申報輔導</span></div>
+      <div class="cdesc2">AI 碳盤查系統讓初次申報上市企業在 8 週內完成合規流程，順利通過第三方查核</div>
+    </div>
+  </div>
+</div>
+
+<!-- S6: BD -->
+<div class="slide" id="s6">
+  <div class="hdr"><span style="font-size:22px">👥</span><h1>目標客群 · 優先排序 · BD 切入話術</h1></div>
+  <div class="left">
+    <h3>優先目標產業</h3>
+    <div class="seg">
+      <div class="tier" style="background:#DC2626;">A</div>
+      <div class="seg-info">
+        <div class="seg-title">製造業（上市電子 / 傳產）</div>
+        <div class="seg-pain">碳盤查壓力最高 + Apple / NVIDIA 供應鏈要求揭露</div>
+      </div>
+      <span class="badge" style="background:#DC2626; opacity:.85;">預算：高</span>
+    </div>
+    <div class="seg">
+      <div class="tier" style="background:#DC2626;">A</div>
+      <div class="seg-info">
+        <div class="seg-title">金融 / 銀行 / 保險業</div>
+        <div class="seg-pain">ISSB 揭露要求、ESG 評分影響授信與外資持股比例</div>
+      </div>
+      <span class="badge" style="background:#DC2626; opacity:.85;">預算：高</span>
+    </div>
+    <div class="seg">
+      <div class="tier" style="background:#F59E0B;">B</div>
+      <div class="seg-info">
+        <div class="seg-title">科技新創（準備上市 / 興櫃中）</div>
+        <div class="seg-pain">提前佈局永續體質，吸引外資 ESG 基金持股</div>
+      </div>
+      <span class="badge" style="background:#F59E0B; opacity:.9;">預算：中</span>
+    </div>
+    <div class="seg">
+      <div class="tier" style="background:#F59E0B;">B</div>
+      <div class="seg-info">
+        <div class="seg-title">醫療 / 醫美連鎖品牌</div>
+        <div class="seg-pain">社會面揭露（DEI、職安）需求高，碳中和品牌形象</div>
+      </div>
+      <span class="badge" style="background:#F59E0B; opacity:.9;">預算：中</span>
+    </div>
+    <div class="seg">
+      <div class="tier" style="background:#0D9488;">C</div>
+      <div class="seg-info">
+        <div class="seg-title">不動產 / 建設</div>
+        <div class="seg-pain">建築能耗、綠建築碳排揭露，ESG 租戶要求</div>
+      </div>
+      <span class="badge" style="background:#0D9488; opacity:.9;">預算：中低</span>
+    </div>
+  </div>
+  <div class="right">
+    <h3>BD 切入話術框架</h3>
+    <div class="fw" style="border-color:#DC2626;">
+      <div class="fw-step" style="color:#DC2626;">① 釐清痛點</div>
+      <div class="fw-q">「今年 8 月底要交，現在幾個人在負責 ESG？」</div>
+      <div class="fw-tip">→ 確認人力投入，換算人月成本，讓對方意識到問題規模</div>
+    </div>
+    <div class="fw" style="border-color:#F59E0B;">
+      <div class="fw-step" style="color:#F59E0B;">② 法規錨定</div>
+      <div class="fw-q">「金管會 2025 全面強制，貴公司準備好了嗎？」</div>
+      <div class="fw-tip">→ 製造合規緊迫感，確認決策者是否清楚法規壓力</div>
+    </div>
+    <div class="fw" style="border-color:#0D9488;">
+      <div class="fw-step" style="color:#0D9488;">③ AI 價值展示</div>
+      <div class="fw-q">「我們 AI 可以把 3 個月的工作壓縮到 3 週。」</div>
+      <div class="fw-tip">→ 請對方同意安排 30 分鐘 Demo 展示具體效果</div>
+    </div>
+    <div class="fw" style="border-color:#7C3AED;">
+      <div class="fw-step" style="color:#7C3AED;">④ 決策者確認</div>
+      <div class="fw-q">「由永續長 / 財務長 / 董事會哪位主導這件事？」</div>
+      <div class="fw-tip">→ 繞過門衛，鎖定真正決策者，縮短銷售週期</div>
+    </div>
+  </div>
+</div>
+
+<!-- S7: ROADMAP -->
+<div class="slide" id="s7">
+  <div class="hdr"><span style="font-size:22px">💡</span><h1>導入路徑 · 時程 · 合作方案</h1></div>
+  <div class="phases">
+    <div class="ph">
+      <div class="ph-badge" style="background:#34D399;">Phase 1</div>
+      <div class="ph-wk" style="color:#34D399;">第 1–2 週</div>
+      <div class="ph-title">需求診斷</div>
+      <div class="ph-div"></div>
+      <div class="ph-pts">
+        <div class="ph-pt">現況 ESG 流程 & 數據源訪談</div>
+        <div class="ph-pt">準則適用性確認（GRI / TCFD / SASB）</div>
+        <div class="ph-pt">數據缺口盤點 & AI 導入優先排序</div>
+      </div>
+    </div>
+    <div class="ph">
+      <div class="ph-badge" style="background:#F59E0B;">Phase 2</div>
+      <div class="ph-wk" style="color:#F59E0B;">第 3–6 週</div>
+      <div class="ph-title">核心建置</div>
+      <div class="ph-div"></div>
+      <div class="ph-pts">
+        <div class="ph-pt">數據整合 Agent 部署 & 系統串接</div>
+        <div class="ph-pt">碳排自動計算系統上線</div>
+        <div class="ph-pt">GRI / TCFD 指標映射配置完成</div>
+      </div>
+    </div>
+    <div class="ph">
+      <div class="ph-badge" style="background:#3B82F6;">Phase 3</div>
+      <div class="ph-wk" style="color:#3B82F6;">第 7–10 週</div>
+      <div class="ph-title">報告生成</div>
+      <div class="ph-div"></div>
+      <div class="ph-pts">
+        <div class="ph-pt">AI 生成永續報告書初稿</div>
+        <div class="ph-pt">數據一致性校驗 & 查核預備</div>
+        <div class="ph-pt">內部審查循環 & 修訂定稿</div>
+      </div>
+    </div>
+    <div class="ph">
+      <div class="ph-badge" style="background:#0D9488;">Phase 4</div>
+      <div class="ph-wk" style="color:#0D9488;">持續服務</div>
+      <div class="ph-title">運維 & 優化</div>
+      <div class="ph-div"></div>
+      <div class="ph-pts">
+        <div class="ph-pt">法規更新自動推送 & 版本迭代</div>
+        <div class="ph-pt">年度報告書版本更新協助</div>
+        <div class="ph-pt">ESG 評分提升策略建議</div>
+      </div>
+    </div>
+  </div>
+  <div class="pricing">
+    <div class="pr-label">合作方案</div>
+    <div class="pr-tags">
+      <div class="pr-tag" style="background:#0D9488;">入門版 · 專案制　首次合規 / 20億↓上市</div>
+      <div class="pr-tag" style="background:#34D399; color:#1A4731;">標準版 · 年訂閱　中型上市 + 持續維運</div>
+      <div class="pr-tag" style="background:#F59E0B; color:#1A4731;">企業版 · 客製化　集團 / 多廠 / 供應鏈</div>
+    </div>
+  </div>
+</div>
+
+<!-- S8: CTA -->
+<div class="slide" id="s8">
+  <div class="deco1"></div>
+  <div class="deco2"></div>
+  <h1>現在開始，讓 AI 替你解決 ESG 合規壓力</h1>
+  <div class="sub">2025 年 8 月底是第一個強制申報截止——距今所剩時間有限，立即啟動準備。</div>
+  <div class="cards">
+    <div class="scard">
+      <div class="sicon">🔍</div>
+      <div class="stitle">免費 ESG 現況診斷</div>
+      <div class="sdesc">30 分鐘線上視訊，快速盤點貴公司的合規缺口與數據問題，提供優先導入建議報告，完全無費用。</div>
+    </div>
+    <div class="scard">
+      <div class="sicon">🤖</div>
+      <div class="stitle">AI Agent Demo 展示</div>
+      <div class="sdesc">實際演示 2 分鐘內自動生成碳盤查報告草稿，現場展示 GRI 指標映射與多系統數據串接效果。</div>
+    </div>
+    <div class="scard">
+      <div class="sicon">⚙️</div>
+      <div class="stitle">客製化導入提案</div>
+      <div class="sdesc">依貴公司規模、產業別、時程與預算，提供精準的分期導入方案與詳細費用試算，無後顧之憂。</div>
+    </div>
+  </div>
+  <div class="footer">索紋科技 Solvyn AI · contact@solvyn.ai · www.solvyn.ai</div>
+</div>
+
+<div class="nav">
+  <button onclick="go(-1)">◀ 上一張</button>
+  <button onclick="go(1)">下一張 ▶</button>
+</div>
+<div class="slide-num" id="snum">1 / 8</div>
+
+<script>
+let cur = 0;
+const slides = document.querySelectorAll('.slide');
+function go(d) {
+  slides[cur].classList.remove('active');
+  cur = (cur + d + slides.length) % slides.length;
+  slides[cur].classList.add('active');
+  document.getElementById('snum').textContent = (cur+1) + ' / ' + slides.length;
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') go(1);
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') go(-1);
+});
+</script>
+</body>
+</html>
